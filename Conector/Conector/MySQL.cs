@@ -458,122 +458,84 @@ namespace Conector
             COmando.Connection.Close();
         }
 
-        /// <summary>
-        /// Abre um campo de uma coluna do banco de dados
-        /// </summary>
-        /// <typeparam name="T">Tipo do valor e ser aberto</typeparam>
-        /// <param name="coluna">Coluna que contem o valor</param>
-        /// <param name="nomecampo">Nome do campo a ser aberto</param>
-        /// <param name="valorPadrao">Valor padrão caso o campo seja NULL</param>
-        /// <returns>Valor do campo na coluna</returns>
-        public static T AbreCampo<T>(DataRow coluna, string nomecampo, T valorPadrao)
+        public static DataSet DirectSelectComand(string tableName, List<MySqlParameter> campos, List<MySqlParameter> parametros)
         {
-            return coluna[nomecampo].Equals(DBNull.Value) ? valorPadrao : (T)coluna[nomecampo];
+            string comando = "SELECT ";
+            foreach(MySqlParameter i in campos)
+            {
+                comando += i.ParameterName + ",";
+            }
+            comando = comando.Remove(comando.Length - 1, 1);
+            comando += " FROM " + tableName;
+            if(parametros.Count > 0)
+            {
+                comando += " where ";
+                foreach (MySqlParameter i in parametros)
+                {
+                    comando += i.ParameterName + " = @" + i.ParameterName + " AND ";
+                }
+                comando = comando.Remove(comando.Length - 5, 5);
+            }
+            return SelectComand(comando, parametros);
         }
 
-        //public static int AbreCampo_INT(DataRow coluna, string nomecampo)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? 0 : int.Parse(coluna[nomecampo].ToString());
-        //}
+        public static DataSet DirectInsertComand(string tableName, string idName, List<MySqlParameter> parametros)
+        {
+            string comandoInsert = "INSERT INTO " + tableName;
+            string comandoInsertCampos = "(";
+            string comandoInsertValues = "(";
+            foreach (MySqlParameter i in parametros)
+            {
+                if (i.ParameterName != idName)
+                {
+                    comandoInsertCampos += i.ParameterName + ",";
+                    comandoInsertValues += "@" + i.ParameterName + ",";
+                }
+            }
+            comandoInsertCampos = comandoInsertCampos.Remove(comandoInsertCampos.Length - 1, 1) + ")";
+            comandoInsertValues = comandoInsertValues.Remove(comandoInsertValues.Length - 1, 1) + ")";
+            comandoInsert += comandoInsertCampos + " VALUES " + comandoInsertValues;
+            string comandoSelect = "SELECT ";
+            foreach (MySqlParameter i in parametros)
+            {
+                comandoSelect += i.ParameterName + ",";
+            }
+            comandoSelect = comandoSelect.Remove(comandoSelect.Length - 1, 1);
+            comandoSelect += " FROM " + tableName;
+            if (parametros.Count > 0)
+            {
+                comandoSelect += " where " + idName + " = LAST_INSERT_ID()";
+            }
+            Comando(comandoInsert, parametros);
+            return SelectComand(comandoSelect);
+        }
 
-        //public static int AbreCampo_INT(DataRow coluna, string nomecampo, int valorpadrao)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? valorpadrao : int.Parse(coluna[nomecampo].ToString());
-        //}
-
-        //public static int? AbreCampo_INT_NULL(DataRow coluna, string nomecampo)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? null : (int?)coluna[nomecampo];
-        //}
-
-        //public static float AbreCampo_FLOAT(DataRow coluna, string nomecampo)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? 0.0f : (float)coluna[nomecampo];
-        //}
-
-        //public static float AbreCampo_FLOAT(DataRow coluna, string nomecampo, float valorpadrao)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? valorpadrao : (float)coluna[nomecampo];
-        //}
-
-        //public static float? AbreCampo_FLOAT_NULL(DataRow coluna, string nomecampo)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? null : (float?)coluna[nomecampo];
-        //}
-
-        //public static bool AbreCampo_BIT(DataRow coluna, string nomecampo)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? false : (bool)coluna[nomecampo];
-        //}
-
-        //public static bool AbreCampo_BIT(DataRow coluna, string nomecampo, bool valorpadrao)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? valorpadrao : (bool)coluna[nomecampo];
-        //}
-
-        //public static bool? AbreCampo_BIT_NULL(DataRow coluna, string nomecampo)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? null : (bool?)coluna[nomecampo];
-        //}
-
-        //public static string AbreCampo_VARCHAR(DataRow coluna, string nomecampo)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? string.Empty : coluna[nomecampo].ToString();
-        //}
-
-        //public static string AbreCampo_VARCHAR(DataRow coluna, string nomecampo, string valorpadrao)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? valorpadrao : coluna[nomecampo].ToString();
-        //}
-
-        //public static string AbreCampo_VARCHAR(DataRow coluna, string nomecampo, bool nulo)
-        //{
-        //    if (nulo)
-        //    {
-        //        return coluna[nomecampo].Equals(DBNull.Value) ? string.Empty : coluna[nomecampo].ToString();
-        //    }
-        //    else
-        //    {
-        //        return coluna[nomecampo].Equals(DBNull.Value) ? null : coluna[nomecampo].ToString();
-        //    }
-        //}
-
-        //public static string AbreCampo_TEXTO(DataRow coluna, string nomecampo)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? string.Empty : coluna[nomecampo].ToString();
-        //}
-
-        //public static string AbreCampo_TEXTO(DataRow coluna, string nomecampo, string valorpadrao)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? valorpadrao : coluna[nomecampo].ToString();
-        //}
-
-        //public static string AbreCampo_TEXTO(DataRow coluna, string nomecampo, bool nulo)
-        //{
-        //    if (nulo)
-        //    {
-        //        return coluna[nomecampo].Equals(DBNull.Value) ? string.Empty : coluna[nomecampo].ToString();
-        //    }
-        //    else
-        //    {
-        //        return coluna[nomecampo].Equals(DBNull.Value) ? null : coluna[nomecampo].ToString();
-        //    }
-        //}
-
-        //public static DateTime AbreCampo_DATETIME(DataRow coluna, string nomecampo)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? new DateTime(0) : (DateTime)coluna[nomecampo];
-        //}
-
-        //public static DateTime AbreCampo_DATETIME(DataRow coluna, string nomecampo, DateTime valorpadrao)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? valorpadrao : (DateTime)coluna[nomecampo];
-        //}
-
-        //public static DateTime? AbreCampo_DATETIME_NULL(DataRow coluna, string nomecampo)
-        //{
-        //    return coluna[nomecampo].Equals(DBNull.Value) ? null : (DateTime?)coluna[nomecampo];
-        //}
+        public static DataSet DirectUpdateComand(string tableName, string idName, List<MySqlParameter> parametros)
+        {
+            string comandoUpdate = "UPDATE " + tableName + " SET ";
+            foreach (MySqlParameter i in parametros)
+            {
+                if (i.ParameterName != idName)
+                {
+                    comandoUpdate += i.ParameterName + " = @" + i.ParameterName + ",";
+                }
+            }
+            comandoUpdate = comandoUpdate.Remove(comandoUpdate.Length - 1, 1);
+            comandoUpdate += "  WHERE " + idName + " = @" + idName;
+            string comandoSelect = "SELECT ";
+            foreach (MySqlParameter i in parametros)
+            {
+                comandoSelect += i.ParameterName + ",";
+            }
+            comandoSelect = comandoSelect.Remove(comandoSelect.Length - 1, 1);
+            comandoSelect += " FROM " + tableName;
+            if (parametros.Count > 0)
+            {
+                comandoSelect += " where " + idName + " = @" + idName;
+            }
+            Comando(comandoUpdate, parametros);
+            return SelectComand(comandoSelect);
+        }
 
         #endregion
 

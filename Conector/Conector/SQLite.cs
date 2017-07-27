@@ -424,7 +424,7 @@ namespace Conector
             comandoSelect += " FROM " + tableName;
             if (parametros.Count > 0)
             {
-                comandoSelect += " where " + idName + " = LAST_INSERT_ID()";
+                comandoSelect += " where " + idName + " = last_insert_rowid()";
             }
             Comando(comandoInsert, parametros);
             return SelectComand(comandoSelect);
@@ -483,7 +483,7 @@ namespace Conector
                     comando += "[" + i.ParameterName + "] INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,";
                 }
             }
-            comando = comando.Remove(comando.Length - 1, 1);
+            comando = comando.Remove(comando.Length - 1, 1) + ")";
             Comando(comando, parametros);
         }
 

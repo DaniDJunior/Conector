@@ -479,6 +479,22 @@ namespace Conector
             return SelectComand(comando, parametros);
         }
 
+        public static DataSet DirectSelectComand(string tableName, List<MySqlParameter> campos, List<MySqlParameter> parametros, string whereCondition)
+        {
+            string comando = "SELECT ";
+            foreach (MySqlParameter i in campos)
+            {
+                comando += i.ParameterName + ",";
+            }
+            comando = comando.Remove(comando.Length - 1, 1);
+            comando += " FROM " + tableName;
+            if (parametros.Count > 0)
+            {
+                comando += " where " + whereCondition;
+            }
+            return SelectComand(comando, parametros);
+        }
+
         public static DataSet DirectInsertComand(string tableName, string idName, List<MySqlParameter> parametros)
         {
             string comandoInsert = "INSERT INTO " + tableName;

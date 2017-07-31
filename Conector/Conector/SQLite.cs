@@ -399,6 +399,22 @@ namespace Conector
             return SelectComand(comando, parametros);
         }
 
+        public static DataSet DirectSelectComand(string tableName, List<SQLiteParameter> campos, List<SQLiteParameter> parametros, string whereCondition)
+        {
+            string comando = "SELECT ";
+            foreach (SQLiteParameter i in campos)
+            {
+                comando += i.ParameterName + ",";
+            }
+            comando = comando.Remove(comando.Length - 1, 1);
+            comando += " FROM " + tableName;
+            if (parametros.Count > 0)
+            {
+                comando += " where " + whereCondition;
+            }
+            return SelectComand(comando, parametros);
+        }
+
         public static DataSet DirectInsertComand(string tableName, string idName, List<SQLiteParameter> parametros)
         {
             string comandoInsert = "INSERT INTO " + tableName;

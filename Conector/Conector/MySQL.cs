@@ -550,7 +550,7 @@ namespace Conector
                 comandoSelect += " where " + idName + " = @" + idName;
             }
             Comando(comandoUpdate, parametros);
-            return SelectComand(comandoSelect);
+            return SelectComand(comandoSelect, parametros);
         }
 
         #endregion
